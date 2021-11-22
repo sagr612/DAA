@@ -1,41 +1,66 @@
 #include<bits/stdc++.h>
 using namespace std;
-
-int shorweig(int **graph,int ver,int u,int v,int k)
+int fp(vector<int>p,int i)
 {
-    if(k<=0)
-return INT_MAX;
-if(k==0 &&u==v) 
-return 0;
-if(k==1  &&graph[u][v]!=INT_MAX)
-return graph[u][v];
-
-
-
-int res=INT_MAX;
-for(int i=0;i<ver;i++)
-{
-    if(graph[u][i]!=0 && u!=i &&v!=i)
-    {
-        int recu=shorweig(graph,ver,i,v,k-1);
-        if(recu!=INT_MAX)
-        res=min(res,graph[u][i]+recu);
-    }
+if(p[i]<0)
+return i;
+return fp(p,p[i]);
 }
-return res;
-
+bool unionbweig(vector<int> &p, int u, int v)
+{
+    int pu=fp(p,u);
+    int pv=fp(p,v);
+    if(pu!=pv)
+    {
+        if(p[pu]<=p[pv])
+        {
+            p[pu]+=p[pv];
+            p[pv]=pu;
+        }
+        else
+        {
+            p[pv]+=p[pu];
+            p[pu]=pv;
+        }
+        return true;
+    }
+    return false;
+}
+int krus(vector<vector<int>>&v,int n)
+{
+    int ans=0;
+    vector<pair<int,pair<int,int>>> g;
+     for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+        if(v[i][j]!=0)
+        g.push_back(make_pair(v[i][j],make_pair(i,j)));
+     sort(g.begin(),g.end(), greater<pair<int, pair<int, int>>>());
+     vector<int>p(n,-1);
+     for(auto i: g)
+     {
+         int u=i.second.first;
+         int v=i.second.second;
+         int w=i.first;
+         if(unionbweig(p,u,v))
+         ans=ans+w;
+     }   
+     return ans;
 }
 int main()
 {
-    int ver,u,v,k,ans;
-    cin>>ver;
-    int **graph=(int **)malloc(ver*sizeof(int*));
-    for(int i=0;i<ver;i++)
-    graph[i]=(int*)malloc(sizeof(int)*ver);
-    for(int i=0;i<ver;i++)
-    for(int j=0;j<ver;j++)
-    cin>>graph[i][j];
-    cin>>u>>v>>k;
-ans=shorweig(graph,ver,u-1,v-1,k);
-cout<<"Weight of shortest path from ("<<u<<","<<v<<") with "<<k<<" edges :"<<ans;
+    int n,t;
+    cin>>n;
+    vector<vector<int>>v;
+    vector<int>vec;
+    for(int i=0;i<n;i++)
+    {
+        vec.clear();
+        for(int j=0;j<n;j++)
+        {
+            cin>>t;
+            vec.push_back(t);
+    }
+    v.push_back(vec);
+    }
+    cout<<"Maximum spanning weight : "<<krus(v,n);
 }
