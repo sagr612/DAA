@@ -1,52 +1,66 @@
 #include<bits/stdc++.h>
 using namespace std;
-void pacal(vector<int>& pa,int i)
+int fp(vector<int>p,int i)
 {
-cout<< i+1<<" ";
-if(pa[i]>0)
-pacal(pa,pa[i]);
+if(p[i]<0)
+return i;
+return fp(p,p[i]);
 }
-void bellman(int **graph,int m,int sour)
+bool unionbweig(vector<int> &p, int u, int v)
 {
-vector<int>dis(m,INT_MAX),pa(m,-1);
-dis[sour]=0;
-for(int ki=0;ki<m-1;ki++)
-{
-for(int i=0;i<m;i++)
-{
-for(int j=0;j<m;j++)
-{
-    if(graph[i][j]!=0)
+    int pu=fp(p,u);
+    int pv=fp(p,v);
+    if(pu!=pv)
     {
-        if(dis[j]>dis[i]+graph[i][j])
-        { dis[j]=dis[i]+graph[i][j];
-        pa[j]=i;
+        if(p[pu]<p[pv])
+        {
+            p[pu]+=p[pv];
+            p[pv]=pu;
+        }
+        else
+        {
+            p[pv]+=p[pu];
+            p[pu]=pv;
+        }
+        return true;
     }
+    return false;
 }
-}
-}
-}
-for(int i=0;i<m;i++)
+int krus(vector<vector<int>>&v,int n)
 {
-    pacal(pa,i);
-    cout<<": "<<dis[i]<<endl;
+    int ans=0;
+    vector<pair<int,pair<int,int>>> g;
+     for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+        if(v[i][j]!=0)
+        g.push_back(make_pair(v[i][j],make_pair(i,j)));
+     sort(g.begin(),g.end());
+     vector<int>p(n,-1);
+     for(auto i: g)
+     {
+         int u=i.second.first;
+         int v=i.second.second;
+         int w=i.first;
+         if(unionbweig(p,u,v))
+         ans=ans+w;
+     }   
+     return ans;
 }
-}
-
 int main()
 {
-int m,source,ed;
-cin>>m;
-int **graph=(int **)malloc(m*sizeof(int *));
-for(int i=0;i<m;i++)
-    graph[i]=(int*)malloc(m*sizeof(int));
-for(int i=0;i<m;i++)
-{
-    for(int j=0;j<m;j++)
+    int n,t;
+    cin>>n;
+    vector<vector<int>>v;
+    vector<int>vec;
+    for(int i=0;i<n;i++)
     {
-        cin>>graph[i][j];
+        vec.clear();
+        for(int j=0;j<n;j++)
+        {
+            cin>>t;
+            vec.push_back(t);
     }
-}
-cin>>source; 
-bellman(graph,m,source-1);
+    v.push_back(vec);
+    }
+    cout<<"Minimum spanning weight : "<<krus(v,n);
 }
